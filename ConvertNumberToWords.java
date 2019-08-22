@@ -1,8 +1,10 @@
 import java.text.DecimalFormat;
+import java.util.Optional;
+import java.util.Scanner;
 
 public class ConvertNumberToWords {
 
-  private static final String[] tensNames = {
+  private static final String[] tens = {
     "",
     " ten",
     " twenty",
@@ -15,7 +17,7 @@ public class ConvertNumberToWords {
     " ninety"
   };
 
-  private static final String[] numNames = {
+  private static final String[] numBelowTwenty = {
     "",
     " one",
     " two",
@@ -40,29 +42,39 @@ public class ConvertNumberToWords {
 
   private ConvertNumberToWords() {}
 
-  private static String convertLessThanOneThousand(int number) {
-    String soFar;
+  private static String convertLessThanTwoThousand(int number) {
+    String tillNowStr;
 
     if (number % 100 < 20){
-      soFar = numNames[number % 100];
+      tillNowStr = numBelowTwenty[number % 100];
       number /= 100;
     }  else {
-      soFar = numNames[number % 10];
+      tillNowStr = numBelowTwenty[number % 10];
       number /= 10;
 
-      soFar = tensNames[number % 10] + soFar;
+      tillNowStr = tens[number % 10] + tillNowStr;
       number /= 10;
     }
-    if (number == 0) return soFar;
-    return numNames[number] + " hundred" + soFar;
+    if (number == 0) return tillNowStr;
+    return numBelowTwenty[number] + ( tillNowStr.isEmpty()? " hundred "+tillNowStr:" hundred and "+tillNowStr) ;
   }
 
 
-  public static String convert(long number) {
-    // 0 to 999 999 999 999
-    if (number == 0) { return "zero"; }
+  public static String convert(String snumber) {
+	  
+	  Optional<String> checkNull= Optional.ofNullable(snumber);
+	  if( !checkNull.isPresent()){
+		  return "Input is null";
+	  }
+	// 0 to 999 999 999 999
+	long number = 0l;
+	try {
+		  number = Long.parseLong(snumber);
+		  if (number == 0) { return "zero"; }
+	} catch (Exception e) {
+		return "Invalid input";
+	}
 
-    String snumber = Long.toString(number);
 
     // pad with "0"
     String mask = "000000000000";
@@ -84,11 +96,11 @@ public class ConvertNumberToWords {
     		tradBillions = "";
     		break;
     	case 1 :
-    		tradBillions = convertLessThanOneThousand(billions)
+    		tradBillions = convertLessThanTwoThousand(billions)
     		+ " billion ";
     		break;
     	default :
-    		tradBillions = convertLessThanOneThousand(billions)
+    		tradBillions = convertLessThanTwoThousand(billions)
     		+ " billion ";
     	}
     String result =  tradBillions;
@@ -99,11 +111,11 @@ public class ConvertNumberToWords {
     		tradMillions = "";
     		break;
     	case 1 :
-    		tradMillions = convertLessThanOneThousand(millions)
+    		tradMillions = convertLessThanTwoThousand(millions)
     		+ " million ";
     		break;
     	default :
-    		tradMillions = convertLessThanOneThousand(millions)
+    		tradMillions = convertLessThanTwoThousand(millions)
     		+ " million ";
     	}
     	result =  result + tradMillions;
@@ -117,13 +129,13 @@ public class ConvertNumberToWords {
     		tradHundredThousands = "one thousand ";
     		break;
     	default :
-    		tradHundredThousands = convertLessThanOneThousand(hundredThousands)
+    		tradHundredThousands = convertLessThanTwoThousand(hundredThousands)
     		+ " thousand ";
     	}
     	result =  result + tradHundredThousands;
 
     	String tradThousand;
-    	tradThousand = convertLessThanOneThousand(thousands);
+    	tradThousand = convertLessThanTwoThousand(thousands);
     	result =  result + tradThousand;
     	// remove extra spaces!
     	return result.replaceAll("^\\s+", "").replaceAll("\\b\\s{2,}\\b", " ");
@@ -134,7 +146,12 @@ public class ConvertNumberToWords {
    * @param args
    */
   public static void main(String[] args) {
-    System.out.println(" fifty six million nine hundred and forty five thousand seven hundred and eighty one*** " + ConvertNumberToWords.convert(56945781));
+	// Using Scanner for Getting Input from User 
+      Scanner in = new Scanner(System.in); 
+
+      String input = in.nextLine(); 
+	 // String number = "56945781";
+    System.out.println(ConvertNumberToWords.convert(input));
 
   }
 }
